@@ -11,7 +11,7 @@ export const ToDo = ({ title, description, id, completed }) => {
 				name='checkbox'
 				id=''
 				onChange={(e) => {}}
-				className='form-checkbox text-purple-500 mx-6 appearance-none border border-gray-500 w-4 h-4 rounded text-white checked:border-transparent focus:outline-none '
+				className='form-checkbox text-purple-500 mx-6 border border-gray-500 w-4 h-4 rounded text-white checked:border-transparent focus:outline-none '
 			/>
 			<div className=''>
 				<h2 className='text-black font-bold'>{title}</h2>
