@@ -7,7 +7,7 @@ import { Filters } from './Filters';
 import { ToDo } from './ToDo';
 
 export const ToDoList = () => {
-	const { state, dispatch } = useContext(Context);
+	const { state } = useContext(Context);
 	const [showAdd, setShowAdd] = useState(false);
 	return (
 		<div className='h-full'>
