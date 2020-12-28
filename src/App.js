@@ -86,7 +86,7 @@ function App() {
 		<Context.Provider value={{ state, dispatch }}>
 			<div
 				className={
-					'h-screen flex flex-col justify-center bg-gradient-to-br from-purple-600 to-pink-500 py-40'
+					'subpixel-antialiased h-screen flex flex-col justify-center bg-gradient-to-br from-purple-600 to-pink-500 py-40'
 				}>
 				<ToDoList />
 			</div>

@@ -21,7 +21,7 @@ button {
 }
 
 button:hover {
-	@apply transform scale-110 duration-150 ease-in-out;
+	@apply transform scale-105 duration-150 ease-in-out;
 }
 
 input#title-input::placeholder {
