@@ -117,7 +117,7 @@ const reducer = (state, { type, payload }) => {
 
 function App() {
 	const [state, dispatch] = useReducer(reducer, initialState);
-	const proxyurl = 'https://cors-anywhere.herokuapp.com/';
+	const proxyurl = '';
 	const refreshList = () => {
 		dispatch({ type: 'GET_TODOS' });
 		axios
