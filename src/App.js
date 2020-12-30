@@ -1,55 +1,46 @@
-import React, { createContext, useReducer } from 'react';
+import axios from 'axios';
+import React, { createContext, useReducer, useEffect } from 'react';
 import { ToDoList } from './components/ToDoList';
 
 const initialState = {
+	loading: true,
 	filters: {
 		showAll: { name: 'SHOW ALL', active: true, action: 'SHOW_ALL' },
 		completed: { name: 'COMPLETED', action: 'SHOW_COMPLETED' },
 		pending: { name: 'PENDING', action: 'SHOW_PENDING' },
 	},
-	todos: [
-		{
-			id: 1,
-			title: 'Go to Market',
-			description: 'Buy ingredients to prepare dinner',
-			completed: true,
-		},
-		{
-			id: 2,
-			title: 'Study',
-			description: 'Read Algebra and History textbook for upcoming test',
-			completed: false,
-		},
-		{
-			id: 3,
-			title: "Sally's books",
-			description: "Go to library to rent sally's books",
-			completed: true,
-		},
-		{
-			id: 4,
-			title: 'Article',
-			description: 'Write article on how to use django with react',
-			completed: false,
-		},
-	],
+	todos: [],
+	showingTodos: [],
+	activeTodo: { title: '', description: '', completed: false, id: '' },
+	err: '',
+	activeFilter: '',
 };
 
 export const Context = createContext();
 
 const reducer = (state, { type, payload }) => {
 	switch (type) {
+		case 'GET_TODOS':
+			return { ...state, loading: true, todos: [], err: '' };
+
+		case 'GET_TODOS_SUCCESS':
+			return { ...state, todos: payload, err: '', loading: false };
+
+		case 'GET_TODOS_FAILED':
+			return { ...state, todos: [], err: payload, loading: false };
+
 		case 'SHOW_ALL':
 			return {
 				...state,
-				todos: initialState.todos,
+				showingTodos: state.todos,
 				filters: initialState.filters,
+				activeFilter: 'SHOW_ALL',
 			};
 
 		case 'SHOW_COMPLETED':
 			return {
 				...state,
-				todos: initialState.todos.filter((todo) => todo.completed),
+				showingTodos: state.todos.filter((todo) => todo.completed),
 				filters: {
 					showAll: { name: 'SHOW ALL', action: 'SHOW_ALL' },
 					completed: {
@@ -59,12 +50,13 @@ const reducer = (state, { type, payload }) => {
 					},
 					pending: { name: 'PENDING', action: 'SHOW_PENDING' },
 				},
+				activeFilter: 'SHOW_COMPLETED',
 			};
 
 		case 'SHOW_PENDING':
 			return {
 				...state,
-				todos: initialState.todos.filter((todo) => !todo.completed),
+				showingTodos: state.todos.filter((todo) => !todo.completed),
 				filters: {
 					showAll: { name: 'SHOW ALL', action: 'SHOW_ALL' },
 					completed: {
@@ -73,7 +65,49 @@ const reducer = (state, { type, payload }) => {
 					},
 					pending: { name: 'PENDING', active: true, action: 'SHOW_PENDING' },
 				},
+
+				activeFilter: 'SHOW_PENDING',
 			};
+
+		case 'CHANGE_COMPLETED':
+			return {
+				...state,
+				todos: [
+					...state.todos.filter((item) => item.id !== payload.id),
+					payload,
+				],
+			};
+
+		case 'DELETE_TODO':
+			return {
+				...state,
+				todos: state.todos.filter((todo) => todo.id !== payload),
+			};
+
+		case 'EDIT_TODO':
+			return {
+				...state,
+				todos: [
+					...state.todos.filter((todo) => todo.id !== payload.id),
+					payload,
+				],
+			};
+
+		case 'ADD_TODO':
+			return { ...state, todos: state.todos.push(payload) };
+
+		case 'SET_ACTIVE_TODO':
+			return {
+				...state,
+				activeTodo: state.todos.filter((todo) => todo.id === payload)[0],
+			};
+
+		case 'CLEAR_ACTIVE_TODO':
+			return { ...state, activeTodo: {} };
+
+		case 'SET_ERR':
+			return { ...state, err: payload };
+
 		default:
 			return state;
 	}
@@ -81,9 +115,90 @@ const reducer = (state, { type, payload }) => {
 
 function App() {
 	const [state, dispatch] = useReducer(reducer, initialState);
+	const refreshList = () => {
+		dispatch({ type: 'GET_TODOS' });
+		const response = axios
+			.get('https://to-do-backendapi.herokuapp.com/todos/')
+			.then((r) => dispatch({ type: 'GET_TODOS_SUCCESS', payload: r.data }))
+			.catch((err) => {
+				console.error(err);
+				dispatch({ type: 'GET_TODOS_FAILED' });
+			});
+	};
+	const handleSubmit = (todo) => {
+		if (todo.id !== '') {
+			axios
+				.put(`https://to-do-backendapi.herokuapp.com/todos/${todo.id}`, todo)
+				.then((r) => dispatch({ type: 'EDIT_TODO', payload: todo }))
+				.catch((err) => {
+					dispatch({ type: 'SET_ERR', payload: err });
+					console.error(err);
+				});
+		} else {
+			axios
+				.post('https://to-do-backendapi.herokuapp.com/todos/', todo)
+				.then((r) => dispatch({ type: 'ADD_TODO', payload: todo }))
+				.catch((err) => {
+					dispatch({ type: 'SET_ERR', payload: err });
+					console.error(err);
+				});
+		}
+		dispatch({ type: 'CLEAR_ACTIVE_TODO' });
+		dispatch({ type: state.activeFilter });
+	};
+	const handleDelete = async (id) => {
+		axios
+			.delete(`https://to-do-backendapi.herokuapp.com/todos/${id}`)
+			.then((r) => dispatch({ type: 'DELETE_TODO', payload: id }))
+			.catch((err) => {
+				dispatch({ type: 'SET_ERR', payload: err });
+				console.error(err);
+			});
+		dispatch({ type: state.activeFilter });
+	};
+
+	const handleEdit = (id) => {
+		dispatch({ type: 'SET_ACTIVE_TODO', payload: id });
+	};
+
+	const handleChange = (id) => {
+		const item = state.todos.filter((item) => item.id === id)[0];
+
+		axios
+			.put(`https://to-do-backendapi.herokuapp.com/todos/${item.id}`, item)
+			.then((r) => {
+				dispatch({
+					type: 'CHANGE_COMPLETED',
+					payload: { ...item, completed: !item.completed },
+				});
+			})
+			.catch((err) => {
+				dispatch({ type: 'SET_ERR', payload: err });
+				console.error(err);
+			});
+		dispatch({ type: state.activeFilter });
+	};
+
+	useEffect(() => {
+		refreshList();
+	}, []);
+
+	useEffect(() => {
+		if (state.err !== '') {
+			alert(state.err);
+		}
+	}, [state.err]);
 
 	return (
-		<Context.Provider value={{ state, dispatch }}>
+		<Context.Provider
+			value={{
+				state,
+				dispatch,
+				handleDelete,
+				handleSubmit,
+				handleChange,
+				handleEdit,
+			}}>
 			<div
 				className={
 					'subpixel-antialiased h-screen flex flex-col justify-center bg-gradient-to-br from-purple-600 to-pink-500 py-40'

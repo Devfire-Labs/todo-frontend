@@ -5,7 +5,11 @@ module.exports = {
 		extend: {},
 	},
 	variants: {
-		extend: { backgroundColor: ['checked'], textColor: ['checked'] },
+		extend: {
+			backgroundColor: ['checked'],
+			textColor: ['checked'],
+			display: ['group-hover'],
+		},
 	},
 	plugins: [],
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const AddTodoModal = (props) => {
+export const TodoModal = (props) => {
 	return (
 		<div
 			className='fixed z-40 top-0 left-0 flex flex-col justify-center items-center h-screen w-full transition duration-150'
