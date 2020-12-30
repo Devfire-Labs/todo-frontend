@@ -117,10 +117,11 @@ const reducer = (state, { type, payload }) => {
 
 function App() {
 	const [state, dispatch] = useReducer(reducer, initialState);
+	const proxyurl = 'https://cors-anywhere.herokuapp.com/';
 	const refreshList = () => {
 		dispatch({ type: 'GET_TODOS' });
 		axios
-			.get('https://to-do-backendapi.herokuapp.com/todos/')
+			.get(proxyurl + 'https://to-do-backendapi.herokuapp.com/todos/')
 			.then((r) => {
 				dispatch({ type: 'GET_TODOS_SUCCESS', payload: r.data });
 				dispatch({
@@ -139,7 +140,10 @@ function App() {
 			dispatch({ type: state.activeFilter });
 			console.log(todo);
 			axios
-				.put(`https://to-do-backendapi.herokuapp.com/todos/${todo.id}`, todo)
+				.put(
+					`${proxyurl}https://to-do-backendapi.herokuapp.com/todos/${todo.id}`,
+					todo
+				)
 				.catch((err) => {
 					dispatch({ type: 'SET_ERR', payload: err });
 					console.error(err);
@@ -149,7 +153,7 @@ function App() {
 		} else {
 			dispatch({ type: state.activeFilter });
 			axios
-				.post('https://to-do-backendapi.herokuapp.com/todos/', todo)
+				.post(proxyurl + 'https://to-do-backendapi.herokuapp.com/todos/', todo)
 				.then((r) => refreshList())
 				.catch((err) => {
 					dispatch({ type: 'SET_ERR', payload: err });
@@ -161,7 +165,7 @@ function App() {
 	const handleDelete = async (id) => {
 		dispatch({ type: 'DELETE_TODO', payload: id });
 		axios
-			.delete(`https://to-do-backendapi.herokuapp.com/todos/${id}`)
+			.delete(`${proxyurl}https://to-do-backendapi.herokuapp.com/todos/${id}`)
 			.catch((err) => {
 				dispatch({ type: 'SET_ERR', payload: err });
 				console.error(err);
@@ -178,7 +182,10 @@ function App() {
 		const item = state.todos.filter((item) => item.id === id)[0];
 
 		axios
-			.put(`https://to-do-backendapi.herokuapp.com/todos/${item.id}`, item)
+			.put(
+				`${proxyurl}https://to-do-backendapi.herokuapp.com/todos/${item.id}`,
+				item
+			)
 			.then((r) => {
 				dispatch({
 					type: 'CHANGE_COMPLETED',
