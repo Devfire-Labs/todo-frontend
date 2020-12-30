@@ -16,12 +16,13 @@ export const ToDoList = () => {
 		handleDelete,
 		handleEdit,
 	} = useContext(Context);
+
 	const [showAdd, setShowAdd] = useState(false);
 	useEffect(() => {
 		if (!state.loading) {
 			dispatch({ type: 'SHOW_ALL' });
 		}
-	}, [state.loading]);
+	}, []);
 
 	return (
 		<div className='h-full'>

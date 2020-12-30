@@ -24,7 +24,12 @@ const reducer = (state, { type, payload }) => {
 			return { ...state, loading: true, todos: [], err: '' };
 
 		case 'GET_TODOS_SUCCESS':
-			return { ...state, todos: payload, err: '', loading: false };
+			return {
+				...state,
+				todos: [...state.todos, ...payload],
+				err: '',
+				loading: false,
+			};
 
 		case 'GET_TODOS_FAILED':
 			return { ...state, todos: [], err: payload, loading: false };
@@ -93,9 +98,6 @@ const reducer = (state, { type, payload }) => {
 				],
 			};
 
-		case 'ADD_TODO':
-			return { ...state, todos: state.todos.push(payload) };
-
 		case 'SET_ACTIVE_TODO':
 			return {
 				...state,
@@ -103,7 +105,7 @@ const reducer = (state, { type, payload }) => {
 			};
 
 		case 'CLEAR_ACTIVE_TODO':
-			return { ...state, activeTodo: {} };
+			return { ...state, activeTodo: initialState.activeTodo };
 
 		case 'SET_ERR':
 			return { ...state, err: payload };
@@ -117,42 +119,53 @@ function App() {
 	const [state, dispatch] = useReducer(reducer, initialState);
 	const refreshList = () => {
 		dispatch({ type: 'GET_TODOS' });
-		const response = axios
+		axios
 			.get('https://to-do-backendapi.herokuapp.com/todos/')
-			.then((r) => dispatch({ type: 'GET_TODOS_SUCCESS', payload: r.data }))
+			.then((r) => {
+				dispatch({ type: 'GET_TODOS_SUCCESS', payload: r.data });
+				dispatch({
+					type: state.activeFilter !== '' ? state.activeFilter : 'SHOW_ALL',
+				});
+			})
 			.catch((err) => {
 				console.error(err);
 				dispatch({ type: 'GET_TODOS_FAILED' });
+				alert(err);
 			});
 	};
 	const handleSubmit = (todo) => {
 		if (todo.id !== '') {
+			dispatch({ type: 'EDIT_TODO', payload: todo });
+			dispatch({ type: state.activeFilter });
+			console.log(todo);
 			axios
 				.put(`https://to-do-backendapi.herokuapp.com/todos/${todo.id}`, todo)
-				.then((r) => dispatch({ type: 'EDIT_TODO', payload: todo }))
 				.catch((err) => {
 					dispatch({ type: 'SET_ERR', payload: err });
 					console.error(err);
+					refreshList();
 				});
+			dispatch({ type: 'CLEAR_ACTIVE_TODO' });
 		} else {
+			dispatch({ type: state.activeFilter });
 			axios
 				.post('https://to-do-backendapi.herokuapp.com/todos/', todo)
-				.then((r) => dispatch({ type: 'ADD_TODO', payload: todo }))
+				.then((r) => refreshList())
 				.catch((err) => {
 					dispatch({ type: 'SET_ERR', payload: err });
 					console.error(err);
+					refreshList();
 				});
 		}
-		dispatch({ type: 'CLEAR_ACTIVE_TODO' });
-		dispatch({ type: state.activeFilter });
 	};
 	const handleDelete = async (id) => {
+		dispatch({ type: 'DELETE_TODO', payload: id });
 		axios
 			.delete(`https://to-do-backendapi.herokuapp.com/todos/${id}`)
-			.then((r) => dispatch({ type: 'DELETE_TODO', payload: id }))
 			.catch((err) => {
 				dispatch({ type: 'SET_ERR', payload: err });
 				console.error(err);
+				refreshList();
 			});
 		dispatch({ type: state.activeFilter });
 	};

@@ -27,7 +27,7 @@ export const ToDo = ({
 				<h2 className='text-black font-bold'>{title}</h2>
 				<p className='text-sm text-gray-700'>{description}</p>
 			</div>
-			<div className=' hidden group-hover:flex ml-auto mr-8'>
+			<div className='hidden group-hover:flex group-hover:opacity-100 ml-auto mr-8'>
 				<button
 					className='py-1 px-2 rounded font-bold text-xs text-white focus:outline-none bg-blue-400'
 					onClick={handleEdit}>
