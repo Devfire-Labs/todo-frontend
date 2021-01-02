@@ -109,7 +109,8 @@ const reducer = (state, { type, payload }) => {
 
 		case 'SET_ERR':
 			return { ...state, err: payload };
-
+		case 'CLEAR_ERR':
+			return { ...state, err: '' };
 		default:
 			return state;
 	}
@@ -117,11 +118,10 @@ const reducer = (state, { type, payload }) => {
 
 function App() {
 	const [state, dispatch] = useReducer(reducer, initialState);
-	const proxyurl = '';
 	const refreshList = () => {
 		dispatch({ type: 'GET_TODOS' });
 		axios
-			.get(proxyurl + 'https://to-do-backendapi.herokuapp.com/todos/')
+			.get('https://to-do-backendapi.herokuapp.com/todos/')
 			.then((r) => {
 				dispatch({ type: 'GET_TODOS_SUCCESS', payload: r.data });
 				dispatch({
@@ -138,12 +138,10 @@ function App() {
 		if (todo.id !== '') {
 			dispatch({ type: 'EDIT_TODO', payload: todo });
 			dispatch({ type: state.activeFilter });
-			console.log(todo);
+			console.log('Editing todo: ' + todo);
 			axios
-				.put(
-					`${proxyurl}https://to-do-backendapi.herokuapp.com/todos/${todo.id}`,
-					todo
-				)
+				.put(`https://to-do-backendapi.herokuapp.com/todos/${todo.id}/`, todo)
+				.then((r) => dispatch({ type: 'CLEAR_ERR' }))
 				.catch((err) => {
 					dispatch({ type: 'SET_ERR', payload: err });
 					console.error(err);
@@ -152,9 +150,13 @@ function App() {
 			dispatch({ type: 'CLEAR_ACTIVE_TODO' });
 		} else {
 			dispatch({ type: state.activeFilter });
+			console.log('New todo: ' + todo);
 			axios
-				.post(proxyurl + 'https://to-do-backendapi.herokuapp.com/todos/', todo)
-				.then((r) => refreshList())
+				.post('https://to-do-backendapi.herokuapp.com/todos/', todo)
+				.then((r) => {
+					refreshList();
+					dispatch({ type: 'CLEAR_ERR' });
+				})
 				.catch((err) => {
 					dispatch({ type: 'SET_ERR', payload: err });
 					console.error(err);
@@ -165,7 +167,8 @@ function App() {
 	const handleDelete = async (id) => {
 		dispatch({ type: 'DELETE_TODO', payload: id });
 		axios
-			.delete(`${proxyurl}https://to-do-backendapi.herokuapp.com/todos/${id}`)
+			.delete(`https://to-do-backendapi.herokuapp.com/todos/${id}/`)
+			.then((r) => dispatch({ type: 'CLEAR_ERR' }))
 			.catch((err) => {
 				dispatch({ type: 'SET_ERR', payload: err });
 				console.error(err);
@@ -180,17 +183,19 @@ function App() {
 
 	const handleChange = (id) => {
 		const item = state.todos.filter((item) => item.id === id)[0];
-
+		console.log('Changing completed on: ' + JSON.stringify(item));
 		axios
-			.put(
-				`${proxyurl}https://to-do-backendapi.herokuapp.com/todos/${item.id}`,
-				item
-			)
+			.put(`https://to-do-backendapi.herokuapp.com/todos/${item.id}/`, {
+				...item,
+				completed: !item.completed,
+			})
 			.then((r) => {
 				dispatch({
 					type: 'CHANGE_COMPLETED',
 					payload: { ...item, completed: !item.completed },
 				});
+				dispatch({ type: 'CLEAR_ERR' });
+				dispatch({ type: state.activeFilter });
 			})
 			.catch((err) => {
 				dispatch({ type: 'SET_ERR', payload: err });
