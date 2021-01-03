@@ -3,7 +3,7 @@ import loadingIcon from '../assets/loading.svg';
 
 export const Loading = () => {
 	return (
-		<div className='h-full w-full flex flex-col justify-center items-center'>
+		<div className='h-full w-full flex flex-col justify-center items-center mb-5'>
 			<img className='animate-spin w-16' src={loadingIcon} alt='' />
 		</div>
 	);

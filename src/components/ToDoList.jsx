@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { Context } from '../App';
 import { AddTodo } from './AddTodoInput';
 import { Loading } from './Loading';
@@ -19,7 +19,7 @@ export const ToDoList = () => {
 	return (
 		<div
 			className={
-				'md:shadow-xl bg-white rounded py-4 w-full md:w-4/5 h-full md:mx-auto'
+				'md:shadow-xl bg-white md:rounded py-4 w-full md:w-4/5 h-full md:mx-auto'
 			}>
 			<div className='md:flex justify-between items-center mb-4'>
 				{/* <Filters /> */}
@@ -32,7 +32,7 @@ export const ToDoList = () => {
 				/>
 				<AddTodo handleSubmit={handleSubmit} />
 			</div>
-			<div className={'overflow-y-auto '} style={{ height: '94%' }}>
+			<div className={'md:overflow-y-auto '} style={{ height: '94%' }}>
 				{!state.loading ? (
 					state.showingTodos.length > 0 ? (
 						state.showingTodos.map((todo) => (
