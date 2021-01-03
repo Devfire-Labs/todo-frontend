@@ -3,7 +3,6 @@
 [![vercel](https://img.shields.io/badge/vercel%20-%23000000.svg?&style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 
 # To-Do App: Task Tracker 
-## Frontend repo
 
 This project is hosted on [Vercel](https://vercel.com/) under [To-Do App](https://todo-frontend-jet.vercel.app/). It was also bootstrapped with [Create React App](https://github.com/facebook/create-react-app) and styled using [TailwindCSS](https://tailwindcss.com/).
 
