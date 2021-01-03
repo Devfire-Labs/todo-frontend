@@ -11,6 +11,7 @@ export const AddTodo = ({ handleSubmit }) => {
 				title: input,
 				completed: false,
 			});
+			setInput('');
 		}
 	};
 	return (
@@ -21,7 +22,7 @@ export const AddTodo = ({ handleSubmit }) => {
 				onChange={(e) => setInput(e.target.value)}
 				value={input}
 				placeholder='Add task'
-				className='py-2 px-4 mx-auto md:ml-0 mt-3 md:mt-0 md:m-0 w-full md:w-auto rounded text-md text-black placeholder-gray-400 focus:outline-none bg-gray-200'
+				className='py-3 px-5 mx-auto md:ml-0 mt-3 md:mt-0 md:m-0 w-full md:w-auto rounded text-md text-black placeholder-gray-400 focus:outline-none bg-gray-200'
 			/>
 		</div>
 	);

@@ -5,9 +5,13 @@ import { Context } from '../App';
 import backBtn from '../assets/left-arrow.svg';
 
 export const ToDoDetails = ({ match }) => {
-	const { dispatch, handleSubmit, handleClose, handleChange, refreshList } = useContext(
-		Context
-	);
+	const {
+		dispatch,
+		handleSubmit,
+		handleClose,
+		handleChange,
+		refreshList,
+	} = useContext(Context);
 
 	const {
 		params: { todoId },
@@ -22,6 +26,7 @@ export const ToDoDetails = ({ match }) => {
 
 	const [todo, setTodo] = useState(initialTodo);
 	const [isLoading, setIsLoading] = useState(true);
+	const [err, setErr] = useState(0);
 
 	const inputStyles = 'z-50 px-2 py-1 w-full opacity-100 focus:outline-none';
 
@@ -33,7 +38,7 @@ export const ToDoDetails = ({ match }) => {
 				setIsLoading(false);
 			})
 			.catch((err) => {
-				dispatch({ type: 'SET_ERR', payload: err });
+				setErr(err.response.status);
 				console.error('Error:', err);
 			});
 	}, [todoId]);
@@ -70,42 +75,47 @@ export const ToDoDetails = ({ match }) => {
 					className='form-checkbox text-purple-500 mx-6 border border-gray-500 w-4 h-4 rounded text-white checked:border-transparent focus:outline-none '
 				/>
 			</div>
-			{!isLoading && (
-				<div className='px-6 py-4'>
-					<label htmlFor='title'>
-						<input
-							type='text'
-							name='title'
-							id='title-input'
-							value={todo.title}
-							placeholder='Title'
-							onChange={(e) =>
-								setTodo((prevState) => ({
-									...prevState,
-									title: e.target.value,
-								}))
-							}
-							className={inputStyles + 'mt-4 font-bold text-xl mb-2'}
-						/>
-					</label>
+			{!isLoading &&
+				(err === 404 ? (
+					<div className='px-6 py-4 text-3xl font-bold text-black'>
+						404 <span className='text-md font-medium'>Not Found</span>
+					</div>
+				) : (
+					<div className='px-6 py-4'>
+						<label htmlFor='title'>
+							<input
+								type='text'
+								name='title'
+								id='title-input'
+								value={todo.title}
+								placeholder='Title'
+								onChange={(e) =>
+									setTodo((prevState) => ({
+										...prevState,
+										title: e.target.value,
+									}))
+								}
+								className={inputStyles + 'mt-4 font-bold text-xl mb-2'}
+							/>
+						</label>
 
-					<label htmlFor='title'>
-						<textarea
-							name='desc'
-							id='desc-input'
-							value={todo.description}
-							placeholder='Description'
-							onChange={(e) =>
-								setTodo((prevState) => ({
-									...prevState,
-									description: e.target.value,
-								}))
-							}
-							className={inputStyles + ' resize-none h-32'}
-						/>
-					</label>
-				</div>
-			)}
+						<label htmlFor='title'>
+							<textarea
+								name='desc'
+								id='desc-input'
+								value={todo.description}
+								placeholder='Description'
+								onChange={(e) =>
+									setTodo((prevState) => ({
+										...prevState,
+										description: e.target.value,
+									}))
+								}
+								className={inputStyles + ' resize-none h-32'}
+							/>
+						</label>
+					</div>
+				))}
 		</div>
 	);
 };

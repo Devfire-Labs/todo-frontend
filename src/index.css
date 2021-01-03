@@ -20,10 +20,6 @@ button {
 	@apply select-none;
 }
 
-button:hover {
-	@apply transform scale-105 duration-150 ease-in-out;
-}
-
 input#title-input::placeholder {
 	@apply text-lg text-gray-500 font-medium;
 }
@@ -34,4 +30,10 @@ textarea#desc-input::placeholder {
 
 input:focus {
 	outline: none;
+}
+
+@media (min-width: 768px) {
+	button:hover {
+		@apply transform scale-105 duration-150 ease-in-out;
+	}
 }
