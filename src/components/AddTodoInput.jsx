@@ -11,6 +11,7 @@ export const AddTodo = ({ handleSubmit }) => {
 				title: input,
 				completed: false,
 			});
+			setInput('');
 		}
 	};
 	return (
