@@ -1,19 +1,16 @@
 import axios from 'axios';
 import React, { createContext, useReducer, useEffect } from 'react';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { ToDoDetails } from './components/ToDoDetails';
 import { ToDoList } from './components/ToDoList';
 
 const initialState = {
 	loading: true,
-	filters: {
-		showAll: { name: 'SHOW ALL', active: true, action: 'SHOW_ALL' },
-		completed: { name: 'COMPLETED', action: 'SHOW_COMPLETED' },
-		pending: { name: 'PENDING', action: 'SHOW_PENDING' },
-	},
+	showCompleted: true,
 	todos: [],
 	showingTodos: [],
 	activeTodo: { title: '', description: '', completed: false, id: '' },
 	err: '',
-	activeFilter: '',
 };
 
 export const Context = createContext();
@@ -34,53 +31,38 @@ const reducer = (state, { type, payload }) => {
 		case 'GET_TODOS_FAILED':
 			return { ...state, todos: [], err: payload, loading: false };
 
-		case 'SHOW_ALL':
-			return {
-				...state,
-				showingTodos: state.todos,
-				filters: initialState.filters,
-				activeFilter: 'SHOW_ALL',
-			};
+		case 'SHOW_COMPLETED_SWITCH':
+			return state.showCompleted
+				? {
+						...state,
+						showCompleted: !state.showCompleted,
+				  }
+				: {
+						...state,
+						showCompleted: !state.showCompleted,
+				  };
 
-		case 'SHOW_COMPLETED':
-			return {
-				...state,
-				showingTodos: state.todos.filter((todo) => todo.completed),
-				filters: {
-					showAll: { name: 'SHOW ALL', action: 'SHOW_ALL' },
-					completed: {
-						name: 'COMPLETED',
-						active: true,
-						action: 'SHOW_COMPLETED',
-					},
-					pending: { name: 'PENDING', action: 'SHOW_PENDING' },
-				},
-				activeFilter: 'SHOW_COMPLETED',
-			};
-
-		case 'SHOW_PENDING':
-			return {
-				...state,
-				showingTodos: state.todos.filter((todo) => !todo.completed),
-				filters: {
-					showAll: { name: 'SHOW ALL', action: 'SHOW_ALL' },
-					completed: {
-						name: 'COMPLETED',
-						action: 'SHOW_COMPLETED',
-					},
-					pending: { name: 'PENDING', active: true, action: 'SHOW_PENDING' },
-				},
-
-				activeFilter: 'SHOW_PENDING',
-			};
+		case 'REFRESH_SHOW':
+			return state.showCompleted
+				? {
+						...state,
+						showingTodos: state.todos,
+				  }
+				: {
+						...state,
+						showingTodos: state.todos.filter((todo) => !todo.completed),
+				  };
 
 		case 'CHANGE_COMPLETED':
+			const index = state.todos.indexOf(
+				state.todos.filter((item) => item.id === payload.id)[0]
+			);
+			const newTodos = [...state.todos];
+			newTodos[index] = payload;
+
 			return {
 				...state,
-				todos: [
-					...state.todos.filter((item) => item.id !== payload.id),
-					payload,
-				],
+				todos: newTodos,
 			};
 
 		case 'DELETE_TODO':
@@ -109,8 +91,10 @@ const reducer = (state, { type, payload }) => {
 
 		case 'SET_ERR':
 			return { ...state, err: payload };
+
 		case 'CLEAR_ERR':
 			return { ...state, err: '' };
+
 		default:
 			return state;
 	}
@@ -124,9 +108,7 @@ function App() {
 			.get('https://to-do-backendapi.herokuapp.com/todos/')
 			.then((r) => {
 				dispatch({ type: 'GET_TODOS_SUCCESS', payload: r.data });
-				dispatch({
-					type: state.activeFilter !== '' ? state.activeFilter : 'SHOW_ALL',
-				});
+				dispatch({ type: 'REFRESH_SHOW' });
 			})
 			.catch((err) => {
 				console.error(err);
@@ -137,7 +119,7 @@ function App() {
 	const handleSubmit = (todo) => {
 		if (todo.id !== '') {
 			dispatch({ type: 'EDIT_TODO', payload: todo });
-			dispatch({ type: state.activeFilter });
+			dispatch({ type: 'REFRESH_SHOW' });
 			console.log('Editing todo: ' + todo);
 			axios
 				.put(`https://to-do-backendapi.herokuapp.com/todos/${todo.id}/`, todo)
@@ -147,10 +129,10 @@ function App() {
 					console.error(err);
 					refreshList();
 				});
-			dispatch({ type: 'CLEAR_ACTIVE_TODO' });
 		} else {
-			dispatch({ type: state.activeFilter });
-			console.log('New todo: ' + todo);
+			dispatch({ type: 'REFRESH_SHOW' });
+
+			console.log('New todo: ' + JSON.stringify(todo));
 			axios
 				.post('https://to-do-backendapi.herokuapp.com/todos/', todo)
 				.then((r) => {
@@ -174,7 +156,7 @@ function App() {
 				console.error(err);
 				refreshList();
 			});
-		dispatch({ type: state.activeFilter });
+		dispatch({ type: 'REFRESH_SHOW' });
 	};
 
 	const handleEdit = (id) => {
@@ -195,13 +177,13 @@ function App() {
 					payload: { ...item, completed: !item.completed },
 				});
 				dispatch({ type: 'CLEAR_ERR' });
-				dispatch({ type: state.activeFilter });
+				dispatch({ type: 'REFRESH_SHOW' });
 			})
 			.catch((err) => {
 				dispatch({ type: 'SET_ERR', payload: err });
 				console.error(err);
 			});
-		dispatch({ type: state.activeFilter });
+		dispatch({ type: 'REFRESH_SHOW' });
 	};
 
 	useEffect(() => {
@@ -223,12 +205,18 @@ function App() {
 				handleSubmit,
 				handleChange,
 				handleEdit,
+				refreshList,
 			}}>
 			<div
 				className={
-					'subpixel-antialiased h-screen flex flex-col justify-center bg-gradient-to-br from-purple-600 to-pink-500 py-40'
+					'subpixel-antialiased h-screen md:flex md:flex-col md:justify-center md:py-40 bg-gradient-to-br from-purple-600 to-pink-500 '
 				}>
-				<ToDoList />
+				<BrowserRouter>
+					<Switch>
+						<Route exact path='/' component={ToDoList} />
+						<Route path='/t/:todoId' component={ToDoDetails} />
+					</Switch>
+				</BrowserRouter>
 			</div>
 		</Context.Provider>
 	);
