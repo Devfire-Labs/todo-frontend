@@ -1,6 +1,6 @@
 {
-	"short_name": "ToDo App",
-	"name": "ToDo List Application",
+	"short_name": "To-Do App",
+	"name": "To-Do App: Task Tracker",
 	"icons": [
 		{
 			"src": "favicon.ico",
