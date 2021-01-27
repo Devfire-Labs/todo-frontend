@@ -1,6 +1,6 @@
 [![Create React App](https://img.shields.io/badge/react%20-%2320232a.svg?&style=for-the-badge&logo=react&logoColor=%2361DAFB)](https://github.com/facebook/create-react-app)
 [![TailwindCSS](https://img.shields.io/badge/tailwindcss%20-%2338B2AC.svg?&style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![vercel](https://img.shields.io/badge/vercel%20-%23000000.svg?&style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+[![Heroku](https://img.shields.io/badge/Heroku-430098?style=for-the-badge&logo=heroku&logoColor=white)](https://www.heroku.com/)
 
 # To-Do App: Task Tracker Frontend
 
