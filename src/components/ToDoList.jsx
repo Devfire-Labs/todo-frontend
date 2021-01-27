@@ -32,7 +32,7 @@ export const ToDoList = () => {
 				/>
 				<AddTodo handleSubmit={handleSubmit} />
 			</div>
-			<div className={'md:overflow-y-auto '} style={{ height: '94%' }}>
+			<div className={'md:overflow-y-auto '} style={{ height: '90%' }}>
 				{!state.loading ? (
 					state.showingTodos.length > 0 ? (
 						state.showingTodos.map((todo) => (
