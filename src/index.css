@@ -33,7 +33,7 @@ input:focus {
 }
 
 @media (min-width: 768px) {
-	button:hover {
-		@apply transform scale-105 duration-150 ease-in-out;
+	button:active {
+		@apply transform scale-95 duration-150 ease-in-out;
 	}
 }
