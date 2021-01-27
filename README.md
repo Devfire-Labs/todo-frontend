@@ -6,5 +6,5 @@
 
 This project is hosted on [Vercel](https://vercel.com/) under [To-Do App](https://todo-frontend-jet.vercel.app/). It was also bootstrapped with [Create React App](https://github.com/facebook/create-react-app) and styled using [TailwindCSS](https://tailwindcss.com/).
 
-This is developed and maintained by [devCayacoa](https://github.com/devCayacoa).
+This repo is developed and maintained by [devCayacoa](https://github.com/devCayacoa).
 
